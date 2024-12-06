@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Bot, Minus, X, Send, Check } from "lucide-react";
 
 export default function App() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showInitialState, setShowInitialState] = useState(true);
   const [messages, setMessages] = useState([]);
@@ -53,7 +53,6 @@ export default function App() {
   //   setMessages((prev) => [...prev, newUserMessage]);
 
   //   try {
-  //     // API call
   //     const response = await fetch(
   //       "https://pharmacybali-medical-chatbot-937077168251.asia-south1.run.app/v1/ask",
   //       {
@@ -64,16 +63,28 @@ export default function App() {
   //         body: JSON.stringify({
   //           query: text,
   //           session_id: sessionId,
+  //           stream: true, // Include stream as required by the API
   //         }),
   //       }
   //     );
 
-  //     const data = await response.json();
+  //     let data;
+  //     const contentType = response.headers.get("content-type");
+
+  //     if (contentType && contentType.includes("application/json")) {
+  //       data = await response.json();
+  //     } else {
+  //       data = await response.text();
+  //     }
+
   //     console.log("API Response:", data); // Log the response
 
   //     if (response.ok) {
   //       const botResponse = {
-  //         text: data.response || "No response from the bot.",
+  //         text:
+  //           typeof data === "string"
+  //             ? data
+  //             : data.response || "No response from the bot.",
   //         isUser: false,
   //         timestamp: formatTime(new Date()),
   //       };
@@ -91,7 +102,6 @@ export default function App() {
   //     setMessages((prev) => [...prev, errorResponse]);
   //   }
   // };
-
   const handleSendMessage = async (text) => {
     setShowInitialState(false);
 
@@ -102,6 +112,14 @@ export default function App() {
     };
 
     setMessages((prev) => [...prev, newUserMessage]);
+
+    const botResponse = {
+      text: "",
+      isUser: false,
+      timestamp: formatTime(new Date()),
+    };
+
+    setMessages((prev) => [...prev, botResponse]);
 
     try {
       const response = await fetch(
@@ -114,43 +132,41 @@ export default function App() {
           body: JSON.stringify({
             query: text,
             session_id: sessionId,
-            stream: true, // Include stream as required by the API
+            stream: true, // Enable streaming in the API request
           }),
         }
       );
 
-      let data;
-      const contentType = response.headers.get("content-type");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
 
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        data = await response.text();
-      }
+      let botText = "";
 
-      console.log("API Response:", data); // Log the response
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      if (response.ok) {
-        const botResponse = {
-          text:
-            typeof data === "string"
-              ? data
-              : data.response || "No response from the bot.",
-          isUser: false,
-          timestamp: formatTime(new Date()),
-        };
-        setMessages((prev) => [...prev, botResponse]);
-      } else {
-        throw new Error(data.message || "Something went wrong");
+        const chunk = decoder.decode(value, { stream: true });
+        botText += chunk;
+
+        setMessages((prev) =>
+          prev.map((msg, index) =>
+            index === prev.length - 1
+              ? { ...msg, text: botText } // Update the last message (bot's response)
+              : msg
+          )
+        );
       }
     } catch (error) {
       console.error("Error:", error.message);
-      const errorResponse = {
-        text: "Something went wrong. Please try again later.",
-        isUser: false,
-        timestamp: formatTime(new Date()),
-      };
-      setMessages((prev) => [...prev, errorResponse]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "Something went wrong. Please try again later.",
+          isUser: false,
+          timestamp: formatTime(new Date()),
+        },
+      ]);
     }
   };
 
