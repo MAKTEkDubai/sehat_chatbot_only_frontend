@@ -42,67 +42,6 @@ export default function App() {
     scrollToBottom();
   }, [messages]);
 
-  // const handleSendMessage = async (text) => {
-  //   setShowInitialState(false);
-
-  //   const newUserMessage = {
-  //     text,
-  //     isUser: true,
-  //     timestamp: formatTime(new Date()),
-  //   };
-
-  //   setMessages((prev) => [...prev, newUserMessage]);
-
-  //   try {
-  //     const response = await fetch(
-  //       "https://pharmacybali-medical-chatbot-937077168251.asia-south1.run.app/v1/ask",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           query: text,
-  //           session_id: sessionId,
-  //           stream: true, // Include stream as required by the API
-  //         }),
-  //       }
-  //     );
-
-  //     let data;
-  //     const contentType = response.headers.get("content-type");
-
-  //     if (contentType && contentType.includes("application/json")) {
-  //       data = await response.json();
-  //     } else {
-  //       data = await response.text();
-  //     }
-
-  //     console.log("API Response:", data); // Log the response
-
-  //     if (response.ok) {
-  //       const botResponse = {
-  //         text:
-  //           typeof data === "string"
-  //             ? data
-  //             : data.response || "No response from the bot.",
-  //         isUser: false,
-  //         timestamp: formatTime(new Date()),
-  //       };
-  //       setMessages((prev) => [...prev, botResponse]);
-  //     } else {
-  //       throw new Error(data.message || "Something went wrong");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error.message);
-  //     const errorResponse = {
-  //       text: "Something went wrong. Please try again later.",
-  //       isUser: false,
-  //       timestamp: formatTime(new Date()),
-  //     };
-  //     setMessages((prev) => [...prev, errorResponse]);
-  //   }
-  // };
   const handleSendMessage = async (text) => {
     setShowInitialState(false);
 
