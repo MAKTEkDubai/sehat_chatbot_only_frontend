@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, Minus, X, Send, Check } from "lucide-react";
-import Temporary from "./temporary";
+import Temporary from "./Temporary";
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
