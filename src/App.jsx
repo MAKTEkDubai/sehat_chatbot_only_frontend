@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, Minus, X, Send, Check } from "lucide-react";
+import Temporary from "./temporary";
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -172,133 +173,140 @@ export default function App() {
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 bg-appGreen text-white p-4 rounded-full shadow-lg hover:bg-appGreen transition-all"
-      >
-        <Bot className="w-6 h-6" />
-      </button>
+      <>
+        <Temporary />
+        <img
+          width={70}
+          src="/logo.png"
+          onClick={() => setIsOpen(true)}
+          className="cursor-pointer fixed bottom-4 right-4"
+        />
+      </>
     );
   }
 
   return (
-    <div
-      className={`fixed right-4 transition-all duration-300 shadow-xl rounded-lg w-80 ${
-        false ? "bottom-4 h-14" : "bottom-10 h-[80vh]"
-      }`}
-    >
-      {/* Header */}
-      <div className="bg-appGreen text-white px-4 py-6 rounded-t-lg flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Bot className="w-6 h-6" />
-          <span className="font-medium">ChatBot</span>
+    <>
+      <Temporary />
+      <div
+        className={`fixed right-4 transition-all duration-300 shadow-xl rounded-lg w-80 ${
+          false ? "bottom-4 h-14" : "bottom-10 h-[80vh]"
+        }`}
+      >
+        {/* Header */}
+        <div className="bg-appGreen text-white px-4 py-6 rounded-t-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Bot className="w-6 h-6" />
+            <span className="font-medium">ChatBot</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="hover:bg-appGreen p-1 rounded"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="hover:bg-appGreen p-1 rounded"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
 
-      {/* Chat Content */}
-      {isOpen && (
-        <div className="bg-[#E7F4F3] rounded-b-lg h-[calc(100%-3.5rem)] flex flex-col">
-          {/* Messages */}
-          <div className="flex-1 overflow-auto p-4 space-y-4">
-            {showInitialState ? (
-              <>
-                <h2 className="text-3xl w-[80%] mx-auto font-semibold text-center mb-8 mt-4">
-                  How can we help you today?
-                </h2>
-                <div className="space-y-2">
-                  {initialQuestions.map((question, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleSendMessage(question)}
-                      className="w-full px-4 py-3 text-sm text-left text-[#374151] bg-white rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
-                    >
-                      {question}
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${
-                    message.isUser ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  {message.isUser ? (
-                    <div className="flex flex-col items-end w-[80%]">
-                      <div className="p-3 rounded-lg bg-[#00BCBD] text-white">
-                        <p className="whitespace-pre-line text-sm">
-                          {message.text}
-                        </p>
-                      </div>
-                      <div className="flex items-center mt-1 text-xs text-gray-500">
-                        <Check className="w-3 h-3 mr-1" />
-                        {message.timestamp}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex">
-                      <div className="w-8 h-8 rounded-full bg-appGreen flex items-center justify-center text-white mr-2">
-                        <Bot className="w-5 h-5" />
-                      </div>
-                      <div className="max-w-[80%]">
-                        <div className="p-3 rounded-lg bg-white text-gray-800 shadow-sm">
-                          <p className="whitespace-pre-line text-sm text-[#374151]">
+        {/* Chat Content */}
+        {isOpen && (
+          <div className="bg-[#E7F4F3] rounded-b-lg h-[calc(100%-3.5rem)] flex flex-col">
+            {/* Messages */}
+            <div className="flex-1 overflow-auto p-4 space-y-4">
+              {showInitialState ? (
+                <>
+                  <h2 className="text-3xl w-[80%] mx-auto font-semibold text-center mb-8 mt-4">
+                    How can we help you today?
+                  </h2>
+                  <div className="space-y-2">
+                    {initialQuestions.map((question, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSendMessage(question)}
+                        className="w-full px-4 py-3 text-sm text-left text-[#374151] bg-white rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
+                      >
+                        {question}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${
+                      message.isUser ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    {message.isUser ? (
+                      <div className="flex flex-col items-end w-[80%]">
+                        <div className="p-3 rounded-lg bg-[#00BCBD] text-white">
+                          <p className="whitespace-pre-line text-sm">
                             {message.text}
                           </p>
                         </div>
-                        {/* <div className="text-xs mt-1 text-gray-500">
+                        <div className="flex items-center mt-1 text-xs text-gray-500">
+                          <Check className="w-3 h-3 mr-1" />
+                          {message.timestamp}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex">
+                        <div className="w-8 h-8 rounded-full bg-appGreen flex items-center justify-center text-white mr-2">
+                          <img src="logoIcon.png" className="w-5 h-5" />
+                        </div>
+
+                        <div className="max-w-[80%]">
+                          <div className="p-3 rounded-lg bg-white text-gray-800 shadow-sm">
+                            <p className="whitespace-pre-line text-sm text-[#374151]">
+                              {message.text}
+                            </p>
+                          </div>
+                          {/* <div className="text-xs mt-1 text-gray-500">
                           {message.timestamp}
                         </div> */}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+                    )}
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
-          {/* Input Area */}
-          <div className="p-4 border-t bg-[#F2FBFB]">
-            <div className="px-2 rounded-lg flex gap-2 bg-white">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Type your message here..."
-                className="flex-1 p-2 rounded-lg focus:outline-none"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && inputMessage.trim()) {
-                    handleSendMessage(inputMessage);
-                    setInputMessage("");
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  if (inputMessage.trim()) {
-                    handleSendMessage(inputMessage);
-                    setInputMessage("");
-                  }
-                }}
-                className="p-2 bg-appGreen text-white rounded-lg hover:bg-appGreen transition-colors"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+            {/* Input Area */}
+            <div className="p-4 border-t bg-[#F2FBFB]">
+              <div className="px-2 rounded-lg flex gap-2 bg-white">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="Type your message here..."
+                  className="flex-1 p-2 rounded-lg focus:outline-none"
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && inputMessage.trim()) {
+                      handleSendMessage(inputMessage);
+                      setInputMessage("");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (inputMessage.trim()) {
+                      handleSendMessage(inputMessage);
+                      setInputMessage("");
+                    }
+                  }}
+                  className="p-2 bg-appGreen text-white rounded-lg hover:bg-appGreen transition-colors"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
