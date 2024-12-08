@@ -134,16 +134,17 @@ export default function App() {
       >
         {/* Header */}
         <div className="bg-appGreen text-white px-4 py-6 rounded-t-lg flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Bot className="w-6 h-6" />
             <span className="font-medium">ChatBot</span>
-          </div>
+          </div> */}
+          <img width={160} src="/online.png" />
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsOpen(false)}
               className="hover:bg-appGreen p-1 rounded"
             >
-              <Minus className="w-4 h-4" />
+              <img width={20} src="/minus.png" />
             </button>
           </div>
         </div>
@@ -237,9 +238,9 @@ export default function App() {
                       setInputMessage("");
                     }
                   }}
-                  className="p-2 bg-appGreen text-white rounded-lg hover:bg-appGreen transition-colors"
+                  className="p-2"
                 >
-                  <Send className="w-5 h-5" />
+                  <img src="/send.png" />
                 </button>
               </div>
             </div>
