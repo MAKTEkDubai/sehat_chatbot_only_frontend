@@ -112,28 +112,19 @@ export default function App() {
 
   if (!isOpen) {
     return (
-      <div
-        style={{
-          position: "fixed",
-          bottom: "10px",
-          right: "10px",
-          zIndex: 1000,
-        }}
-      >
+      <>
         <img
           width={70}
           src="/logo.png"
           onClick={() => setIsOpen(true)}
           className="cursor-pointer fixed bottom-4 right-4"
         />
-      </div>
+      </>
     );
   }
 
   return (
-    <div
-      style={{ position: "fixed", bottom: "10px", right: "10px", zIndex: 1000 }}
-    >
+    <>
       <div
         className={`fixed right-4 transition-all duration-300 shadow-xl rounded-lg w-80 ${
           false ? "bottom-4 h-14" : "bottom-10 h-[80vh]"
@@ -254,6 +245,6 @@ export default function App() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
