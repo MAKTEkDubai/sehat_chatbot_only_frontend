@@ -113,7 +113,7 @@ export default function App() {
   if (!isOpen) {
     return (
       <>
-        <Temporary />
+        {/* <Temporary /> */}
         <img
           width={70}
           src="/logo.png"
@@ -126,7 +126,7 @@ export default function App() {
 
   return (
     <>
-      <Temporary />
+      {/* <Temporary /> */}
       <div
         className={`fixed right-4 transition-all duration-300 shadow-xl rounded-lg w-80 ${
           false ? "bottom-4 h-14" : "bottom-10 h-[80vh]"
