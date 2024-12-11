@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Minus, X, Send, Check } from "lucide-react";
-import Temporary from "./Temporary";
+import { Check } from "lucide-react";
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [showInitialState, setShowInitialState] = useState(true);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
-  const [sessionId, setSessionId] = useState(""); // For storing session ID
+  const [sessionId, setSessionId] = useState("");
+  const [isBotTyping, setIsBotTyping] = useState(false); // state to show loading animation
   const messagesEndRef = useRef(null);
 
   const initialQuestions = [
@@ -18,7 +17,6 @@ export default function App() {
   ];
 
   useEffect(() => {
-    // Generate a unique session ID on component mount
     const generateSessionId = () =>
       `session_${Math.random().toString(36).substr(2, 9)}`;
     setSessionId(generateSessionId());
@@ -43,16 +41,21 @@ export default function App() {
   }, [messages]);
 
   const handleSendMessage = async (text) => {
+    if (!text.trim()) return;
+
     setShowInitialState(false);
 
+    // Create a new user message with 'pending' status
     const newUserMessage = {
       text,
       isUser: true,
+      status: "pending", // initially pending
       timestamp: formatTime(new Date()),
     };
 
     setMessages((prev) => [...prev, newUserMessage]);
 
+    // Prepare the bot response placeholder
     const botResponse = {
       text: "",
       isUser: false,
@@ -62,6 +65,7 @@ export default function App() {
     setMessages((prev) => [...prev, botResponse]);
 
     try {
+      setIsBotTyping(true); // start loading animation
       const response = await fetch(
         "https://pharmacybali-medical-chatbot-937077168251.asia-south1.run.app/v1/ask",
         {
@@ -72,7 +76,7 @@ export default function App() {
           body: JSON.stringify({
             query: text,
             session_id: sessionId,
-            stream: true, // Enable streaming in the API request
+            stream: true,
           }),
         }
       );
@@ -97,6 +101,21 @@ export default function App() {
           )
         );
       }
+
+      // After the bot message is fully received, update the last user message status to 'delivered'
+      setMessages((prev) => {
+        const updated = [...prev];
+        // The user message is before the last message (bot message)
+        // So we update the second last message in the array
+        const userMsgIndex = updated.length - 2;
+        if (userMsgIndex >= 0 && updated[userMsgIndex].isUser) {
+          updated[userMsgIndex] = {
+            ...updated[userMsgIndex],
+            status: "delivered",
+          };
+        }
+        return updated;
+      });
     } catch (error) {
       console.error("Error:", error.message);
       setMessages((prev) => [
@@ -107,7 +126,40 @@ export default function App() {
           timestamp: formatTime(new Date()),
         },
       ]);
+    } finally {
+      setIsBotTyping(false); // end loading animation
     }
+  };
+
+  // Simple loading dots component
+  const LoadingDots = () => {
+    return (
+      <div className="flex items-center space-x-1">
+        <span className="inline-block h-2 w-2 bg-gray-400 rounded-full animate-bounce"></span>
+        <span className="inline-block h-2 w-2 bg-gray-400 rounded-full animate-bounce delay-150"></span>
+        <span className="inline-block h-2 w-2 bg-gray-400 rounded-full animate-bounce delay-300"></span>
+      </div>
+    );
+  };
+
+  const renderMessageStatus = (status) => {
+    if (status === "pending") {
+      // Single grey tick for pending
+      return (
+        <div className="flex items-center text-xs text-gray-500">
+          <Check className="w-3 h-3 mr-1 text-gray-500" />
+        </div>
+      );
+    } else if (status === "delivered") {
+      // Double blue ticks for delivered with overlapping effect
+      return (
+        <div className="flex items-center text-xs text-blue-500 relative">
+          <Check className="w-3 h-3" style={{ marginRight: "-4px" }} />
+          <Check className="w-3 h-3" style={{ marginLeft: "-4px" }} />
+        </div>
+      );
+    }
+    return null;
   };
 
   if (!isOpen) {
@@ -126,23 +178,19 @@ export default function App() {
   return (
     <>
       <div
-        className={`fixed right-4 transition-all duration-300 shadow-xl rounded-lg w-80 ${
+        className={`fixed right-4 transition-all duration-300 shadow-xl rounded-lg w-96 ${
           false ? "bottom-4 h-14" : "bottom-10 h-[80vh]"
         }`}
       >
         {/* Header */}
         <div className="bg-appGreen text-white px-4 py-6 rounded-t-lg flex items-center justify-between">
-          {/* <div className="flex items-center gap-2">
-            <Bot className="w-6 h-6" />
-            <span className="font-medium">ChatBot</span>
-          </div> */}
-          <img width={160} src="/online.png" />
+          <img width={160} src="/online.png" alt="Online" />
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsOpen(false)}
               className="hover:bg-appGreen p-1 rounded"
             >
-              <img width={20} src="/minus.png" />
+              <img width={20} src="/minus.png" alt="Minimize" />
             </button>
           </div>
         </div>
@@ -170,45 +218,68 @@ export default function App() {
                   </div>
                 </>
               ) : (
-                messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${
-                      message.isUser ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    {message.isUser ? (
-                      <div className="flex flex-col items-end w-[80%]">
-                        <div className="p-3 rounded-lg bg-[#00BCBD] text-white">
-                          <p className="whitespace-pre-line text-sm">
-                            {message.text}
-                          </p>
-                        </div>
-                        <div className="flex items-center mt-1 text-xs text-gray-500">
-                          <Check className="w-3 h-3 mr-1" />
-                          {message.timestamp}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex">
-                        <div className="w-8 h-8 rounded-full bg-appGreen flex items-center justify-center text-white mr-2">
-                          <img src="logoIcon.png" className="w-5 h-5" />
-                        </div>
-
-                        <div className="max-w-[80%]">
-                          <div className="p-3 rounded-lg bg-white text-gray-800 shadow-sm">
-                            <p className="whitespace-pre-line text-sm text-[#374151]">
+                messages.map((message, index) => {
+                  if (message.isUser) {
+                    return (
+                      <div key={index} className="flex justify-end">
+                        <div className="flex flex-col items-end w-[80%]">
+                          <div
+                            className="p-3 rounded-lg bg-[#00BCBD] text-white break-words"
+                            style={{
+                              wordBreak: "break-word",
+                              overflowWrap: "anywhere",
+                            }}
+                          >
+                            <p className="whitespace-pre-line text-sm">
                               {message.text}
                             </p>
                           </div>
-                          {/* <div className="text-xs mt-1 text-gray-500">
-                          {message.timestamp}
-                        </div> */}
+                          <div className="flex items-center mt-1 space-x-1">
+                            {renderMessageStatus(message.status)}
+                            <span className="text-xs text-gray-500">
+                              {message.timestamp}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))
+                    );
+                  } else {
+                    // Bot message
+                    return (
+                      <div key={index} className="flex justify-start">
+                        <div className="w-8 h-8 rounded-full bg-appGreen flex items-center justify-center text-white mr-2">
+                          <img
+                            src="logoIcon.png"
+                            className="w-5 h-5"
+                            alt="Bot Icon"
+                          />
+                        </div>
+                        <div className="max-w-[80%]">
+                          <div
+                            className="p-3 rounded-lg bg-white text-gray-800 shadow-sm break-words"
+                            style={{
+                              wordBreak: "break-word",
+                              overflowWrap: "anywhere",
+                            }}
+                          >
+                            {message.text ? (
+                              // Render HTML content for the bot message
+                              <div
+                                className="whitespace-pre-line text-sm text-[#374151]"
+                                dangerouslySetInnerHTML={{
+                                  __html: message.text,
+                                }}
+                              />
+                            ) : (
+                              // If message is empty and bot is typing, show loading dots
+                              isBotTyping && <LoadingDots />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                })
               )}
               <div ref={messagesEndRef} />
             </div>
@@ -238,7 +309,7 @@ export default function App() {
                   }}
                   className="p-2"
                 >
-                  <img src="/send.png" />
+                  <img src="/send.png" alt="Send" />
                 </button>
               </div>
             </div>
