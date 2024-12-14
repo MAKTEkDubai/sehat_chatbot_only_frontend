@@ -285,7 +285,7 @@ export default function App() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t bg-[#F2FBFB]">
+            {/* <div className="p-4 border-t bg-[#F2FBFB]">
               <div className="px-2 rounded-lg flex gap-2 bg-white">
                 <input
                   type="text"
@@ -297,6 +297,38 @@ export default function App() {
                     if (e.key === "Enter" && inputMessage.trim()) {
                       handleSendMessage(inputMessage);
                       setInputMessage("");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (inputMessage.trim()) {
+                      handleSendMessage(inputMessage);
+                      setInputMessage("");
+                    }
+                  }}
+                  className="p-2"
+                >
+                  <img src="/send.png" alt="Send" />
+                </button>
+              </div>
+            </div> */}
+            <div className="p-4 border-t bg-[#F2FBFB]">
+              <div className="px-2 rounded-lg flex gap-2 bg-white">
+                <textarea
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="Type your message here..."
+                  className="flex-1  rounded-lg focus:outline-none resize-none mt-1 py-1  "
+                  rows={1}
+                  // Set the default number of rows
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault(); // Prevent default Enter behavior
+                      if (inputMessage.trim()) {
+                        handleSendMessage(inputMessage);
+                        setInputMessage("");
+                      }
                     }
                   }}
                 />
